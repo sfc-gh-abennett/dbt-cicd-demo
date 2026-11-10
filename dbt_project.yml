@@ -1,0 +1,19 @@
+name: dbt_cicd_demo
+version: "1.0.0"
+config-version: 2
+profile: dbt_cicd_demo
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  dbt_cicd_demo:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts

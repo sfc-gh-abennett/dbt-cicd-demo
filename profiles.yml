@@ -1,0 +1,41 @@
+# Used by GitHub Actions and local runs. dbt Cloud ignores this file
+# (it uses its own Environment connection settings instead).
+#
+# Each target points at its own database: DBT_DEMO_DEV / DBT_DEMO_TEST / DBT_DEMO_PROD.
+# Credentials come from env vars so nothing secret lives in git.
+dbt_cicd_demo:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      authenticator: "{{ env_var('SNOWFLAKE_AUTHENTICATOR', 'snowflake_jwt') }}"
+      private_key: "{{ env_var('SNOWFLAKE_PRIVATE_KEY', '') }}"
+      role: DBT_DEMO_DEV_ROLE
+      warehouse: DBT_DEMO_WH
+      database: DBT_DEMO_DEV
+      schema: "{{ env_var('DBT_DEV_SCHEMA', 'dbt_' ~ env_var('USER', 'ci')) }}"
+      threads: 4
+    test:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      authenticator: "{{ env_var('SNOWFLAKE_AUTHENTICATOR', 'snowflake_jwt') }}"
+      private_key: "{{ env_var('SNOWFLAKE_PRIVATE_KEY', '') }}"
+      role: DBT_DEMO_TEST_ROLE
+      warehouse: DBT_DEMO_WH
+      database: DBT_DEMO_TEST
+      schema: "{{ env_var('DBT_TEST_SCHEMA', 'ci') }}"
+      threads: 4
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      authenticator: "{{ env_var('SNOWFLAKE_AUTHENTICATOR', 'snowflake_jwt') }}"
+      private_key: "{{ env_var('SNOWFLAKE_PRIVATE_KEY', '') }}"
+      role: DBT_DEMO_PROD_ROLE
+      warehouse: DBT_DEMO_WH
+      database: DBT_DEMO_PROD
+      schema: analytics
+      threads: 8

@@ -1,0 +1,49 @@
+# CD: merging to main deploys to PROD. The "production" GitHub Environment can
+# require a manual approval, which is a good gate to show in a demo.
+name: dbt CD (PROD)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dbt-prod
+  cancel-in-progress: false
+
+env:
+  SNOWFLAKE_ACCOUNT: ${{ vars.SNOWFLAKE_ACCOUNT }}
+  SNOWFLAKE_USER: SVC_DBT_GITHUB
+  SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+  DBT_PROFILES_DIR: .
+
+jobs:
+  dbt-prod:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: pip install "dbt-snowflake~=1.9"
+
+      - name: dbt build
+        run: dbt build --target prod
+
+      - name: dbt docs generate
+        run: dbt docs generate --target prod
+
+      # Saved so the CI workflow can do Slim CI (state:modified) against prod.
+      - name: Upload prod manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-manifest
+          path: target/manifest.json
+          retention-days: 30
